@@ -98,6 +98,8 @@ class Main(QtGui.QMainWindow):
         self.dbRefresh.setEnabled(True)
         self.dbDelete.setEnabled(True)
         self.dbAdd.setEnabled(False)
+        self.currentDbName = dbFile.split('/')[-1].strip(".db")
+        self.showDbStructure()
         self.statusBar().showMessage(u"Соединение с БД %s установлено." % dbFile.split('/')[-1])
 
     def disconnectDb(self):
@@ -145,6 +147,48 @@ class Main(QtGui.QMainWindow):
             event.accept()
         else:
             event.ignore()
+
+    def showDbStructure(self):
+        c = self.conn.cursor()
+        c.execute("select name from sqlite_master where type = 'table';")
+        tables = c.fetchall()
+        data = {}
+        for k in tables:
+            data[k[0]] = [u"Данные", u"Схема"]
+        self.dbTreeWidget = QtGui.QTreeWidget()
+        header = QtGui.QTreeWidgetItem([u"База данных %s" % self.currentDbName])
+        self.dbTreeWidget.clear()
+        self.dbTreeWidget.setHeaderItem(header)
+        self.fillDbStructure(self.dbTreeWidget.invisibleRootItem(), data)
+        self.setCentralWidget(self.dbTreeWidget)
+
+    def fillDbStructure(self, item, value):
+        item.setExpanded(False)
+        if type(value) is dict:
+            for key, val in sorted(value.iteritems()):
+                child = QtGui.QTreeWidgetItem()
+                child.setIcon(0, QtGui.QIcon("./icons/table.png"))
+                child.setText(0, unicode(key))
+                item.addChild(child)
+                self.fillDbStructure(child, val)
+        elif type(value) is list:
+            for val in value:
+                child = QtGui.QTreeWidgetItem()
+                item.addChild(child)
+                if type(val) is dict:
+                    child.setText(0, '[dict]')
+                    self.fillDbStructure(child, val)
+                elif type(val) is list:
+                    child.setText(0, '[list]')
+                    self.fillDbStructure(child, val)
+                else:
+                    child.setText(0, unicode(val))              
+                child.setExpanded(True)
+        else:
+            child = QtGui.QTreeWidgetItem()
+            child.setIcon(0, QtGui.QIcon("./icons/table.png"))
+            child.setText(0, unicode(value))
+            item.addChild(child)
 
 app = QtGui.QApplication(sys.argv)
 mw = Main()
