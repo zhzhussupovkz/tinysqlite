@@ -25,6 +25,7 @@
 import sys
 import sqlite3
 from PyQt4 import QtGui, QtCore
+from datetime import *
 
 class Main(QtGui.QMainWindow):
     def __init__(self):
@@ -88,6 +89,7 @@ class Main(QtGui.QMainWindow):
 
         about = QtGui.QAction(QtGui.QIcon('./icons/star.png'), u'О программе', self)
         about.setStatusTip(u"Информация о программе")
+        about.triggered.connect(self.showAbout)
         help.addAction(about)
 
     def connectDb(self):
@@ -104,6 +106,26 @@ class Main(QtGui.QMainWindow):
         self.dbRefresh.setEnabled(False)
         self.dbDelete.setEnabled(False)
         self.statusBar().showMessage(u"Соединение с текущей БД разорвано.")
+
+    def showAbout(self):
+        about = QtGui.QDialog(self)
+        about.setWindowTitle(u"О программе")
+        about.setWindowIcon(QtGui.QIcon("./icons/star.png"))
+
+        label = QtGui.QLabel(u"<center>Tinysqlite - программа для</center>\n<center>\
+            работы с базой данных SQLite</center>\n<center>\
+            Исходники проекта:</center>\n<center>\
+            <a href='https://github.com/zhzhussupovkz/tinysqlite'>\
+            https://github.com/zhzhussupovkz/tinysqlite</a></center>\n\n<center>\
+            Автор: </center>\n<center><a href='mailto:zhzhussupovkz@gmail.com'>zhzhussupovkz@gmail.com</a></center>", about)
+        label.move(100, 25)
+
+        license = QtGui.QLabel(u"<center>Распространяется под</center>\n<center>\
+            лицензией MIT License</center>\n<center>%s</center>" % datetime.now().year, about)
+        license.move(150, 175)
+
+        about.resize(480, 240)
+        about.show()
 
     def center(self):
         screen = QtGui.QDesktopWidget().screenGeometry()
