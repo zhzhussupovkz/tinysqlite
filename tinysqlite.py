@@ -27,70 +27,97 @@ import sqlite3
 from PyQt4 import QtGui, QtCore
 
 class Main(QtGui.QMainWindow):
+    def __init__(self):
+        QtGui.QMainWindow.__init__(self)
 
-  def __init__(self):
-    QtGui.QMainWindow.__init__(self)
+        self.setWindowTitle('DBAdmin')
+        self.setWindowIcon(QtGui.QIcon("icons/db.png"))
+        self.resize(640, 480)
 
-    self.setWindowTitle('DBAdmin')
-    self.setWindowIcon(QtGui.QIcon("icons/db.png"))
-    self.resize(640, 480)
+        menubar = self.menuBar()
+        self.generate_test_db()
+        self.generate_menu(menubar)
+        self.center()
 
-    menubar = self.menuBar()
-    self.generate_menu(menubar)
-    self.generate_test_db()
-    self.center()
+        self.statusBar().showMessage(u"Готово")
 
-    self.statusBar().showMessage(u"Готово")
+    def generate_test_db(self):
+        self.conn = sqlite3.connect("./db/test.db")
+        self.conn.close()
+        self.conn = False
 
-  def generate_test_db(self):
-    conn = sqlite3.connect("./db/test.db")
-    conn.close()
+    def generate_menu(self, menubar):
+        file = menubar.addMenu(u"&Файл")
+        help = menubar.addMenu(u"&Помощь")
+        toolbar = self.addToolBar(u"Главная")
 
-  def generate_menu(self, menubar):
-    file = menubar.addMenu(u"&Файл")
-    help = menubar.addMenu(u"&Помощь")
-    toolbar = self.addToolBar(u"Главная")
+        self.dbAdd = QtGui.QAction(QtGui.QIcon('./icons/db_add.png'), u'Подключиться к БД', self)
+        self.dbAdd.setShortcut("Ctrl+O")
+        self.dbAdd.setStatusTip(u"Подключиться к базе данных")
+        self.dbAdd.triggered.connect(self.connectDb)
+        file.addAction(self.dbAdd)
+        toolbar.addAction(self.dbAdd)
 
-    dbAdd = QtGui.QAction(QtGui.QIcon('./icons/db_add.png'), u'Подключиться к БД', self)
-    dbAdd.setShortcut("Ctrl+C")
-    dbAdd.setStatusTip(u"Подключиться к базе данных")
-    file.addAction(dbAdd)
-    toolbar.addAction(dbAdd)
+        self.dbRefresh = QtGui.QAction(QtGui.QIcon('./icons/db_refresh.png'), u'Обновить БД', self)
+        self.dbRefresh.setShortcut("Ctrl+R")
+        self.dbRefresh.setStatusTip(u"Обновить информацию о базе данных")
+        if self.conn:
+          self.dbRefresh.setEnabled(True)
+        else:
+          self.dbRefresh.setEnabled(False)
+        file.addAction(self.dbRefresh)
+        toolbar.addAction(self.dbRefresh)
 
-    dbRefresh = QtGui.QAction(QtGui.QIcon('./icons/db_refresh.png'), u'Обновить БД', self)
-    dbRefresh.setShortcut("Ctrl+R")
-    dbRefresh.setStatusTip(u"Обновить информацию о базе данных")
-    file.addAction(dbRefresh)
-    toolbar.addAction(dbRefresh)
+        self.dbDelete = QtGui.QAction(QtGui.QIcon('./icons/db_delete.png'), u'Отключиться от БД', self)
+        self.dbDelete.setShortcut("Ctrl+D")
+        self.dbDelete.setStatusTip(u"Отключиться от базы данных")
+        self.dbDelete.triggered.connect(self.disconnectDb)
+        if self.conn:
+          self.dbDelete.setEnabled(True)
+        else:
+          self.dbDelete.setEnabled(False)
+        file.addAction(self.dbDelete)
+        toolbar.addAction(self.dbDelete)
 
-    dbDelete = QtGui.QAction(QtGui.QIcon('./icons/db_delete.png'), u'Отключиться от БД', self)
-    dbDelete.setShortcut("Ctrl+D")
-    dbDelete.setStatusTip(u"Отключиться от базы данных")
-    file.addAction(dbDelete)
-    toolbar.addAction(dbDelete)
+        exit = QtGui.QAction(QtGui.QIcon('./icons/exit.png'), u'Выход', self)
+        exit.setShortcut("Ctrl+Q")
+        exit.setStatusTip(u"Выход")
+        file.addAction(exit)
+        toolbar.addAction(exit)
+        self.connect(exit, QtCore.SIGNAL('triggered()'), QtCore.SLOT('close()'))
 
-    exit = QtGui.QAction(QtGui.QIcon('./icons/exit.png'), u'Выход', self)
-    exit.setShortcut("Ctrl+Q")
-    exit.setStatusTip(u"Выход")
-    file.addAction(exit)
-    toolbar.addAction(exit)
-    self.connect(exit, QtCore.SIGNAL('triggered()'), QtCore.SLOT('close()'))
+        about = QtGui.QAction(QtGui.QIcon('./icons/star.png'), u'О программе', self)
+        about.setStatusTip(u"Информация о программе")
+        help.addAction(about)
 
-    about = QtGui.QAction(QtGui.QIcon('./icons/star.png'), u'О программе', self)
-    about.setStatusTip(u"Информация о программе")
-    help.addAction(about)
+    def connectDb(self):
+        dbFile = str(QtGui.QFileDialog.getOpenFileName(self, u'Открыть файл'))
+        self.conn = sqlite3.connect(dbFile)
+        self.dbRefresh.setEnabled(True)
+        self.dbDelete.setEnabled(True)
+        self.dbAdd.setEnabled(False)
+        self.statusBar().showMessage(u"Соединение с БД %s установлено." % dbFile.split('/')[-1])
 
-  def center(self):
-    screen = QtGui.QDesktopWidget().screenGeometry()
-    size = self.geometry()
-    self.move((screen.width() - size.width())/2, (screen.height() - size.height())/2)
+    def disconnectDb(self):
+        self.conn.close()
+        self.dbAdd.setEnabled(True)
+        self.dbRefresh.setEnabled(False)
+        self.dbDelete.setEnabled(False)
+        self.statusBar().showMessage(u"Соединение с текущей БД разорвано.")
 
-  def closeEvent(self, event):
-    reply = QtGui.QMessageBox.question(self, u"Сообщение", u"Покинуть приложение?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
-    if reply == QtGui.QMessageBox.Yes:
-      event.accept()
-    else:
-      event.ignore()
+    def center(self):
+        screen = QtGui.QDesktopWidget().screenGeometry()
+        size = self.geometry()
+        self.move((screen.width() - size.width())/2, (screen.height() - size.height())/2)
+
+    def closeEvent(self, event):
+        reply = QtGui.QMessageBox.question(self, u"Сообщение", u"Покинуть приложение?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+        if reply == QtGui.QMessageBox.Yes:
+            if self.conn:
+                self.conn.close()
+            event.accept()
+        else:
+            event.ignore()
 
 app = QtGui.QApplication(sys.argv)
 mw = Main()
