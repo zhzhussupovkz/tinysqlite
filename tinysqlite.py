@@ -36,18 +36,18 @@ class Main(QtGui.QMainWindow):
         self.resize(640, 480)
 
         menubar = self.menuBar()
-        self.generate_test_db()
-        self.generate_menu(menubar)
+        self.generateTestDb()
+        self.generateMenu(menubar)
         self.center()
 
         self.statusBar().showMessage(u"Готово")
 
-    def generate_test_db(self):
+    def generateTestDb(self):
         self.conn = sqlite3.connect("./db/test.db")
         self.conn.close()
         self.conn = False
 
-    def generate_menu(self, menubar):
+    def generateMenu(self, menubar):
         file = menubar.addMenu(u"&Файл")
         help = menubar.addMenu(u"&Помощь")
         toolbar = self.addToolBar(u"Главная")
@@ -112,17 +112,22 @@ class Main(QtGui.QMainWindow):
         about.setWindowTitle(u"О программе")
         about.setWindowIcon(QtGui.QIcon("./icons/star.png"))
 
+        pixmap = QtGui.QPixmap("./icons/db.png")
+        imgLabel = QtGui.QLabel(about)
+        imgLabel.setPixmap(pixmap)
+        imgLabel.move(225, 15)
+
         label = QtGui.QLabel(u"<center>Tinysqlite - программа для</center>\n<center>\
             работы с базой данных SQLite</center>\n<center>\
             Исходники проекта:</center>\n<center>\
             <a href='https://github.com/zhzhussupovkz/tinysqlite'>\
             https://github.com/zhzhussupovkz/tinysqlite</a></center>\n\n<center>\
             Автор: </center>\n<center><a href='mailto:zhzhussupovkz@gmail.com'>zhzhussupovkz@gmail.com</a></center>", about)
-        label.move(100, 25)
+        label.move(100, 50)
 
         license = QtGui.QLabel(u"<center>Распространяется под</center>\n<center>\
             лицензией MIT License</center>\n<center>%s</center>" % datetime.now().year, about)
-        license.move(150, 175)
+        license.move(150, 200)
 
         about.resize(480, 240)
         about.show()
