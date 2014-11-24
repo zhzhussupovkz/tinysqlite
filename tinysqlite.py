@@ -199,6 +199,7 @@ class Main(QtGui.QMainWindow):
                 if filter(None, data):
                     self.statusBar().showMessage(u"В таблице %s - %s записей" % (self.currentTableName, len(data)))
                     self.table = QtGui.QTableWidget()
+                    self.table.setSortingEnabled(True)
                     self.table.setWindowTitle('Tinysqlite - %s.%s' % (self.currentDbName, self.currentTableName))
                     self.table.setWindowIcon(QtGui.QIcon("icons/db.png"))
                     self.table.setRowCount(0)
