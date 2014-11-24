@@ -107,6 +107,7 @@ class Main(QtGui.QMainWindow):
         self.dbAdd.setEnabled(True)
         self.dbRefresh.setEnabled(False)
         self.dbDelete.setEnabled(False)
+        self.dbTreeWidget.setParent(None)
         self.statusBar().showMessage(u"Соединение с текущей БД разорвано.")
 
     def showAbout(self):
@@ -159,6 +160,7 @@ class Main(QtGui.QMainWindow):
         header = QtGui.QTreeWidgetItem([u"База данных %s" % self.currentDbName])
         self.dbTreeWidget.clear()
         self.dbTreeWidget.setHeaderItem(header)
+        self.dbTreeWidget.setFixedHeight(128)
         self.fillDbStructure(self.dbTreeWidget.invisibleRootItem(), data)
         self.setCentralWidget(self.dbTreeWidget)
 
@@ -169,30 +171,39 @@ class Main(QtGui.QMainWindow):
                 child = QtGui.QTreeWidgetItem()
                 child.setIcon(0, QtGui.QIcon("./icons/table/table.png"))
                 child.setText(0, unicode(key))
+                self.currentTableName = unicode(key)
                 item.addChild(child)
                 self.fillDbStructure(child, val)
         elif type(value) is list:
             for val in value:
                 child = QtGui.QTreeWidgetItem()
                 item.addChild(child)
-                if type(val) is dict:
-                    child.setText(0, '[dict]')
-                    self.fillDbStructure(child, val)
-                elif type(val) is list:
-                    child.setText(0, '[list]')
-                    self.fillDbStructure(child, val)
-                else:
-                    if val == u"Данные":
-                        child.setIcon(0, QtGui.QIcon("./icons/table/data.png"))
-                    elif val == u"Схема":
-                        child.setIcon(0, QtGui.QIcon("./icons/table/structure.png"))
-                    child.setText(0, unicode(val))
+                if val == u"Данные":
+                    child.setIcon(0, QtGui.QIcon("./icons/table/data.png"))
+                    self.connect(self.dbTreeWidget, QtCore.SIGNAL("itemClicked(QTreeWidgetItem*, int)"), self.getTableData)
+                elif val == u"Схема":
+                    child.setIcon(0, QtGui.QIcon("./icons/table/structure.png"))
+                    self.connect(self.dbTreeWidget, QtCore.SIGNAL("itemClicked(QTreeWidgetItem*, int)"), self.getTableData)
+                child.setText(0, unicode(val))
                 child.setExpanded(True)
-        else:
-            child = QtGui.QTreeWidgetItem()
-            child.setIcon(0, QtGui.QIcon("./icons/table/table.png"))
-            child.setText(0, unicode(value))
-            item.addChild(child)
+
+    def getTableData(self, item, column):
+        getSelected = self.dbTreeWidget.selectedItems()
+        if getSelected:
+            tableProperty = unicode(getSelected[0].text(0))
+            if tableProperty == u"Данные":
+                self.currentTableName = item.parent().text(0)
+                c = self.conn.execute("SELECT * FROM %s" % self.currentTableName)
+                data = c.fetchall()
+                if filter(None, data):
+                    self.statusBar().showMessage(u"В таблице %s - %s записей" % (self.currentTableName, len(data)))
+                else:
+                    self.statusBar().showMessage(u"В таблице %s нет записей" % self.currentTableName)
+                c.close()
+            elif tableProperty == u"Схема":
+                self.currentTableName = item.parent().text(0)
+                c = self.conn.execute("SELECT * FROM %s LIMIT 1" % self.currentTableName)
+                c.close()
 
 app = QtGui.QApplication(sys.argv)
 mw = Main()
