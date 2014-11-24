@@ -52,14 +52,14 @@ class Main(QtGui.QMainWindow):
         help = menubar.addMenu(u"&Помощь")
         toolbar = self.addToolBar(u"Главная")
 
-        self.dbAdd = QtGui.QAction(QtGui.QIcon('./icons/db_add.png'), u'Подключиться к БД', self)
+        self.dbAdd = QtGui.QAction(QtGui.QIcon('./icons/menu/db_add.png'), u'Подключиться к БД', self)
         self.dbAdd.setShortcut("Ctrl+O")
         self.dbAdd.setStatusTip(u"Подключиться к базе данных")
         self.dbAdd.triggered.connect(self.connectDb)
         file.addAction(self.dbAdd)
         toolbar.addAction(self.dbAdd)
 
-        self.dbRefresh = QtGui.QAction(QtGui.QIcon('./icons/db_refresh.png'), u'Обновить БД', self)
+        self.dbRefresh = QtGui.QAction(QtGui.QIcon('./icons/menu/db_refresh.png'), u'Обновить БД', self)
         self.dbRefresh.setShortcut("Ctrl+R")
         self.dbRefresh.setStatusTip(u"Обновить информацию о базе данных")
         if self.conn:
@@ -69,7 +69,7 @@ class Main(QtGui.QMainWindow):
         file.addAction(self.dbRefresh)
         toolbar.addAction(self.dbRefresh)
 
-        self.dbDelete = QtGui.QAction(QtGui.QIcon('./icons/db_delete.png'), u'Отключиться от БД', self)
+        self.dbDelete = QtGui.QAction(QtGui.QIcon('./icons/menu/db_delete.png'), u'Отключиться от БД', self)
         self.dbDelete.setShortcut("Ctrl+D")
         self.dbDelete.setStatusTip(u"Отключиться от базы данных")
         self.dbDelete.triggered.connect(self.disconnectDb)
@@ -80,14 +80,14 @@ class Main(QtGui.QMainWindow):
         file.addAction(self.dbDelete)
         toolbar.addAction(self.dbDelete)
 
-        exit = QtGui.QAction(QtGui.QIcon('./icons/exit.png'), u'Выход', self)
+        exit = QtGui.QAction(QtGui.QIcon('./icons/menu/exit.png'), u'Выход', self)
         exit.setShortcut("Ctrl+Q")
         exit.setStatusTip(u"Выход")
         file.addAction(exit)
         toolbar.addAction(exit)
         self.connect(exit, QtCore.SIGNAL('triggered()'), QtCore.SLOT('close()'))
 
-        about = QtGui.QAction(QtGui.QIcon('./icons/star.png'), u'О программе', self)
+        about = QtGui.QAction(QtGui.QIcon('./icons/menu/star.png'), u'О программе', self)
         about.setStatusTip(u"Информация о программе")
         about.triggered.connect(self.showAbout)
         help.addAction(about)
@@ -112,7 +112,7 @@ class Main(QtGui.QMainWindow):
     def showAbout(self):
         about = QtGui.QDialog(self)
         about.setWindowTitle(u"О программе")
-        about.setWindowIcon(QtGui.QIcon("./icons/star.png"))
+        about.setWindowIcon(QtGui.QIcon("./icons/menu/star.png"))
 
         pixmap = QtGui.QPixmap("./icons/db.png")
         imgLabel = QtGui.QLabel(about)
@@ -167,7 +167,7 @@ class Main(QtGui.QMainWindow):
         if type(value) is dict:
             for key, val in sorted(value.iteritems()):
                 child = QtGui.QTreeWidgetItem()
-                child.setIcon(0, QtGui.QIcon("./icons/table.png"))
+                child.setIcon(0, QtGui.QIcon("./icons/table/table.png"))
                 child.setText(0, unicode(key))
                 item.addChild(child)
                 self.fillDbStructure(child, val)
@@ -182,11 +182,15 @@ class Main(QtGui.QMainWindow):
                     child.setText(0, '[list]')
                     self.fillDbStructure(child, val)
                 else:
-                    child.setText(0, unicode(val))              
+                    if val == u"Данные":
+                        child.setIcon(0, QtGui.QIcon("./icons/table/data.png"))
+                    elif val == u"Схема":
+                        child.setIcon(0, QtGui.QIcon("./icons/table/structure.png"))
+                    child.setText(0, unicode(val))
                 child.setExpanded(True)
         else:
             child = QtGui.QTreeWidgetItem()
-            child.setIcon(0, QtGui.QIcon("./icons/table.png"))
+            child.setIcon(0, QtGui.QIcon("./icons/table/table.png"))
             child.setText(0, unicode(value))
             item.addChild(child)
 
