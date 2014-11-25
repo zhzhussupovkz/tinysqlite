@@ -193,9 +193,10 @@ class Main(QtGui.QMainWindow):
             tableProperty = unicode(getSelected[0].text(0))
             if tableProperty == u"Данные":
                 self.currentTableName = item.parent().text(0)
-                c = self.conn.execute("SELECT * FROM %s" % self.currentTableName)
                 p = self.conn.execute("PRAGMA table_info(%s)" % self.currentTableName)
+                c = self.conn.execute("SELECT * FROM %s" % self.currentTableName)
                 data = c.fetchall()
+                h = [k[1] for k in p.fetchall()]
                 if filter(None, data):
                     self.statusBar().showMessage(u"В таблице %s - %s записей" % (self.currentTableName, len(data)))
                     self.table = QtGui.QTableWidget()
@@ -203,7 +204,7 @@ class Main(QtGui.QMainWindow):
                     self.table.setWindowTitle('Tinysqlite - %s.%s' % (self.currentDbName, self.currentTableName))
                     self.table.setWindowIcon(QtGui.QIcon("icons/db.png"))
                     self.table.setRowCount(0)
-                    self.table.setColumnCount(len(p.fetchall()))
+                    self.table.setColumnCount(len(h))
                     for i, row in enumerate(data):
                         self.table.insertRow(i)
                         for j, val in enumerate(row):
@@ -211,7 +212,9 @@ class Main(QtGui.QMainWindow):
 
                     screen = QtGui.QDesktopWidget().screenGeometry()
                     size = self.table.geometry()
+                    self.table.setHorizontalHeaderLabels(h)
                     self.table.move((screen.width() - size.width())/2, (screen.height() - size.height())/2)
+                    self.table.resizeColumnsToContents()
                     self.table.resize(480, 480)
                     self.table.show()
                 else:
