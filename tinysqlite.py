@@ -222,8 +222,20 @@ class Main(QtGui.QMainWindow):
                 c.close()
             elif tableProperty == u"Схема":
                 self.currentTableName = item.parent().text(0)
-                c = self.conn.execute("SELECT * FROM %s LIMIT 1" % self.currentTableName)
-                c.close()
+                c = self.conn.execute("PRAGMA table_info(%s)" % self.currentTableName)
+                h = [[k[1], k[2]] for k in c.fetchall()]
+                self.schema = QtGui.QTableWidget()
+                self.schema.setWindowTitle('Tinysqlite - %s.%s' % (self.currentDbName, self.currentTableName))
+                self.schema.setWindowIcon(QtGui.QIcon("icons/db.png"))
+                self.schema.setRowCount(0)
+                self.schema.setColumnCount(2)
+                for i, row in enumerate(h):
+                    self.schema.insertRow(i)
+                    for j, val in enumerate(row):
+                        self.schema.setItem(i, j, QtGui.QTableWidgetItem(unicode(val)))
+                self.schema.setHorizontalHeaderLabels([u"Название", u"Тип"])
+                self.schema.show()
+
 
 app = QtGui.QApplication(sys.argv)
 mw = Main()
