@@ -34,6 +34,7 @@ class Main(QtGui.QMainWindow):
         self.setWindowTitle('Tinysqlite')
         self.setWindowIcon(QtGui.QIcon("icons/db.png"))
         self.resize(640, 480)
+        self.screen = QtGui.QDesktopWidget().screenGeometry()
 
         menubar = self.menuBar()
         self.generateTestDb()
@@ -136,9 +137,8 @@ class Main(QtGui.QMainWindow):
         about.show()
 
     def center(self):
-        screen = QtGui.QDesktopWidget().screenGeometry()
         size = self.geometry()
-        self.move((screen.width() - size.width())/2, (screen.height() - size.height())/2)
+        self.move((self.screen.width() - size.width())/2, (self.screen.height() - size.height())/2)
 
     def closeEvent(self, event):
         reply = QtGui.QMessageBox.question(self, u"Сообщение", u"Покинуть приложение?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
@@ -210,10 +210,9 @@ class Main(QtGui.QMainWindow):
                         for j, val in enumerate(row):
                             self.table.setItem(i, j, QtGui.QTableWidgetItem(str(val)))
 
-                    screen = QtGui.QDesktopWidget().screenGeometry()
                     size = self.table.geometry()
                     self.table.setHorizontalHeaderLabels(h)
-                    self.table.move((screen.width() - size.width())/2, (screen.height() - size.height())/2)
+                    self.table.move((self.screen.width() - size.width())/2, (self.screen.height() - size.height())/2)
                     self.table.resizeColumnsToContents()
                     self.table.resize(480, 480)
                     self.table.show()
@@ -234,6 +233,8 @@ class Main(QtGui.QMainWindow):
                     for j, val in enumerate(row):
                         self.schema.setItem(i, j, QtGui.QTableWidgetItem(unicode(val)))
                 self.schema.setHorizontalHeaderLabels([u"Название", u"Тип"])
+                size = self.schema.geometry()
+                self.schema.move((self.screen.width() - size.width())/2, (self.screen.height() - size.height())/2)
                 self.schema.show()
 
 
