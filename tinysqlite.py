@@ -63,6 +63,7 @@ class Main(QtGui.QMainWindow):
         self.dbRefresh = QtGui.QAction(QtGui.QIcon('./icons/menu/db_refresh.png'), u'Обновить БД', self)
         self.dbRefresh.setShortcut("Ctrl+R")
         self.dbRefresh.setStatusTip(u"Обновить информацию о базе данных")
+        self.dbRefresh.triggered.connect(self.refreshDb)
         if self.conn:
           self.dbRefresh.setEnabled(True)
         else:
@@ -102,6 +103,10 @@ class Main(QtGui.QMainWindow):
         self.currentDbName = dbFile.split('/')[-1].strip(".db")
         self.showDbStructure()
         self.statusBar().showMessage(u"Соединение с БД %s установлено." % dbFile.split('/')[-1])
+
+    def refreshDb(self):
+        self.showDbStructure()
+        self.statusBar().showMessage(u"Информация о БД %s обновлена." % self.currentDbName)
 
     def disconnectDb(self):
         self.conn.close()
