@@ -27,7 +27,7 @@ import sqlite3
 from PyQt4 import QtGui, QtCore
 from datetime import *
 
-class Main(QtGui.QMainWindow):
+class Tinysqlite(QtGui.QMainWindow):
     def __init__(self):
         QtGui.QMainWindow.__init__(self)
 
@@ -244,6 +244,6 @@ class Main(QtGui.QMainWindow):
 
 
 app = QtGui.QApplication(sys.argv)
-mw = Main()
+mw = Tinysqlite()
 mw.show()
 sys.exit(app.exec_())
