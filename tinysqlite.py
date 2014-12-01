@@ -263,16 +263,25 @@ class Tinysqlite(QtGui.QMainWindow):
         self.queryWindow.setWindowIcon(QtGui.QIcon("icons/menu/sql.png"))
 
         title = QtGui.QLabel(u"SQL запрос")
-        queryEdit = QtGui.QTextEdit()
+        self.queryEdit = QtGui.QTextEdit()
         runButton = QtGui.QPushButton(u"Выполнить")
+        runButton.clicked.connect(self.runSqlQuery)
+
         grid.addWidget(title, 1, 0)
-        grid.addWidget(queryEdit, 1, 1)
+        grid.addWidget(self.queryEdit, 1, 1)
         grid.addWidget(runButton, 2, 1)
 
         self.queryWindow.setLayout(grid)
         self.queryWindow.resize(320, 240)
         self.queryWindow.show()
 
+    def runSqlQuery(self):
+        currentQuery = self.queryEdit.toPlainText()
+        try:
+            self.conn.execute(currentQuery)
+        except Exception, e:
+            self.statusBar().showMessage(u"Ошибка выполнения SQL-запроса!")
+        self.queryWindow.close()
 
 app = QtGui.QApplication(sys.argv)
 mw = Tinysqlite()
