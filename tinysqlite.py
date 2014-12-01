@@ -82,6 +82,17 @@ class Tinysqlite(QtGui.QMainWindow):
         file.addAction(self.dbDelete)
         toolbar.addAction(self.dbDelete)
 
+        self.sqlQuery = QtGui.QAction(QtGui.QIcon('./icons/menu/sql.png'), u'SQL запрос', self)
+        self.sqlQuery.setShortcut("Ctrl+T")
+        self.sqlQuery.setStatusTip(u"Выполнить SQL запрос")
+        self.sqlQuery.triggered.connect(self.showQueryDialog)
+        if self.conn:
+            self.sqlQuery.setEnabled(True)
+        else:
+            self.sqlQuery.setEnabled(False)
+        file.addAction(self.sqlQuery)
+        toolbar.addAction(self.sqlQuery)
+
         exit = QtGui.QAction(QtGui.QIcon('./icons/menu/exit.png'), u'Выход', self)
         exit.setShortcut("Ctrl+Q")
         exit.setStatusTip(u"Выход")
@@ -99,6 +110,7 @@ class Tinysqlite(QtGui.QMainWindow):
         self.conn = sqlite3.connect(dbFile)
         self.dbRefresh.setEnabled(True)
         self.dbDelete.setEnabled(True)
+        self.sqlQuery.setEnabled(True)
         self.dbAdd.setEnabled(False)
         self.currentDbName = dbFile.split('/')[-1].strip(".db")
         self.showDbStructure()
@@ -113,6 +125,7 @@ class Tinysqlite(QtGui.QMainWindow):
         self.dbAdd.setEnabled(True)
         self.dbRefresh.setEnabled(False)
         self.dbDelete.setEnabled(False)
+        self.sqlQuery.setEnabled(False)
         self.dbTreeWidget.setParent(None)
         self.statusBar().showMessage(u"Соединение с текущей БД разорвано.")
 
@@ -241,6 +254,24 @@ class Tinysqlite(QtGui.QMainWindow):
                 size = self.schema.geometry()
                 self.schema.move((self.screen.width() - size.width())/2, (self.screen.height() - size.height())/2)
                 self.schema.show()
+
+    def showQueryDialog(self):
+        self.queryWindow = QtGui.QDialog()
+        grid = QtGui.QGridLayout()
+        grid.setSpacing(10)
+        self.queryWindow.setWindowTitle(u"Tinysqlite - SQL запрос")
+        self.queryWindow.setWindowIcon(QtGui.QIcon("icons/menu/sql.png"))
+
+        title = QtGui.QLabel(u"SQL запрос")
+        queryEdit = QtGui.QTextEdit()
+        runButton = QtGui.QPushButton(u"Выполнить")
+        grid.addWidget(title, 1, 0)
+        grid.addWidget(queryEdit, 1, 1)
+        grid.addWidget(runButton, 2, 1)
+
+        self.queryWindow.setLayout(grid)
+        self.queryWindow.resize(320, 240)
+        self.queryWindow.show()
 
 
 app = QtGui.QApplication(sys.argv)
