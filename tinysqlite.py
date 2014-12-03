@@ -43,6 +43,10 @@ class Tinysqlite(QtGui.QMainWindow):
 
         self.statusBar().showMessage(u"Готово")
 
+        self.table = None
+        self.schema = None
+        self.queryWindow = None
+
     def generateTestDb(self):
         self.conn = sqlite3.connect("./db/test.db")
         self.conn.close()
@@ -163,6 +167,12 @@ class Tinysqlite(QtGui.QMainWindow):
         if reply == QtGui.QMessageBox.Yes:
             if self.conn:
                 self.conn.close()
+            if self.table is not None:
+                self.table.close()
+            if self.schema is not None:
+                self.schema.close()
+            if self.queryWindow is not None:
+                self.queryWindow.close()
             event.accept()
         else:
             event.ignore()
