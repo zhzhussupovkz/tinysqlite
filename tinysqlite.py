@@ -50,7 +50,7 @@ class Tinysqlite(QtGui.QMainWindow):
     def generateTestDb(self):
         self.conn = sqlite3.connect("./db/test.db")
         self.conn.close()
-        self.conn = False
+        self.conn = None
 
     def generateMenu(self, menubar):
         file = menubar.addMenu(u"&Файл")
